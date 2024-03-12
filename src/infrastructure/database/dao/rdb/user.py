@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src import dto
@@ -27,3 +27,9 @@ class UserDAO(BaseDAO[User]):
         user = result.scalar()
         if user is not None:
             return dto.User.model_validate(user)
+
+    async def update_balance(self, balance: float, telegram_id: int):
+        await self.session.execute(
+            update(User).where(User.telegram_id == telegram_id).values(balance=balance)
+        )
+        await self.session.commit()
